@@ -53,20 +53,20 @@ CartFlow employs a decoupled client-server architecture. The frontend React Sing
 ```mermaid
 graph TD
     subgraph Client ["Client Side (Browser)"]
-        User([User]) -->|Interacts with UI| ReactApp[React SPA - CartFlow]
+        User([User]) -->|Interacts with UI| ReactApp["React SPA - CartFlow"]
     end
 
     subgraph RenderPlatform ["Production Hosting (Render Cloud)"]
         subgraph Frontend_Service ["Frontend (Render Static Site)"]
-            ReactApp -.5-->|HTTP GET for Static Assets| StaticServer[Render CDN / Static Files]
+            ReactApp -.->|HTTP GET for Static Assets| StaticServer["Render CDN / Static Files"]
         end
 
         subgraph Backend_Service ["Backend (Render Web Service - Docker Container)"]
-            ReactApp -->|Secure REST API Calls JWT/CSRF| FastAPI[FastAPI Application - Uvicorn]
+            ReactApp -->|Secure REST API Calls JWT/CSRF| FastAPI["FastAPI Application - Uvicorn"]
         end
 
         subgraph Database_Service ["Database (Render Managed PostgreSQL)"]
-            FastAPI -->|Reads / Writes SQLAlchemy ORM| PostgreSQL[(PostgreSQL Database)]
+            FastAPI -->|Reads / Writes SQLAlchemy ORM| PostgreSQL["PostgreSQL Database"]
         end
     end
 
@@ -286,29 +286,6 @@ docker compose up -d
    npm run dev
    ```
    *(Frontend will launch on [http://localhost:5173](http://localhost:5173))*
-
----
-
-## ☁️ Production Deployment (Hosted on Render)
-
-CartFlow is fully deployed and hosted live on **Render**. Below is the deployment configuration:
-
-### 1. Database Service (Render PostgreSQL)
-* A managed relational database instance.
-* Generates the internal `DATABASE_URL` used secure-internally by the backend service.
-
-### 2. Backend Web Service (Render Web Service)
-* **Build Source:** `/backend` subdirectory in Git.
-* **Runtime Environment:** **Docker** (compiled automatically via the custom backend `Dockerfile`).
-* **Instance Config:** Configured with dynamic port binding (`PORT`) to hook into Render's network proxy.
-* **Active Variables:** `DATABASE_URL`, `CORS_ALLOWED_ORIGINS`, `JWT_SECRET_KEY`, `JWT_ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`.
-
-### 3. Frontend Web Service (Render Static Site)
-* **Build Source:** `/frontend` subdirectory in Git.
-* **Build Trigger:** `npm run build` using the Node environment.
-* **Publish Target:** `dist` folder served over Render's global CDN.
-* **Routing Rules:** Configured rewrite rules (`/*` to `/index.html` as a Rewrite action) to support React Router single-page navigation.
-* **Active Variables:** `VITE_API_BASE_URL` (points to the Render backend service).
 
 ---
 
